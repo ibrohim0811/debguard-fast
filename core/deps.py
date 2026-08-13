@@ -4,9 +4,9 @@ from fastapi import Depends, HTTPException, status, WebSocket, WebSocketExceptio
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 
-from backend.database import get_db
-from backend.core.security import decode_access_token
-from backend.models import Users
+from database import get_db
+from core.security import decode_access_token
+from models import Users
 from dotenv import load_dotenv
 
 load_dotenv()

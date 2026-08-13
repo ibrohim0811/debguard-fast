@@ -18,7 +18,7 @@ from sqlalchemy import (
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from .database import Base
+from database import Base
 
 
 def is_subdomain(domain: Optional[str]) -> bool:
@@ -52,6 +52,7 @@ class Users(Base):
     telegram_id: Mapped[Optional[int]] = mapped_column(
         BigInteger, unique=True, nullable=True
     )
+    password: Mapped[str] = mapped_column(String(500))
     email: Mapped[str] = mapped_column(String(400), unique=True)
     joined_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
