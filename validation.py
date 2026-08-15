@@ -69,9 +69,8 @@ def validate_phone_number(phone_number: str) -> str | None:
     # Beeline, Ucell, Mobiuz, Uztelecom, Humans va shahar raqamlari
     valid_prefixes = {
         # Mobil operatorlar
-        '33', '88', '90', '91', '93', '94', '95', '97', '98', '99', 
+        '33', '88', '90', '91', '92', '93', '94', '95', '97', '98', '99', 
         '20', '77', '50', '55', '70', '75', '10', '11', '12',
-        # Shahar va hududiy raqamlar (ixtiyoriy, agar kerak bo'lsa)
         '71', '55', '61', '62', '65', '66', '67', '69', '72', '73', '74', '76', '79'
     }
     

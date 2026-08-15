@@ -1,0 +1,41 @@
+===============
+|    auth     |
+===============
+/register ->
+127.0.0.1:8000/register:
+    {
+        "full_name":data,
+        "email":data,
+        "phone_number":data,
+        "password":data.password,
+    }
+vazifasi:
+emailga 6 xonali otp kod yuboradi va malumotlarni redis ga saqlaydi rontendchi qiyin mantiq qilmaydi cache ga saqlab cache dan olib ozi qiladi /confirm-otp endpointida tekshiradi
+
+=====================================================================================================
+
+/confirm-top ->
+127.0.0.1:8000/confirm-otp:
+    bunga email va otp ni qabul qiladi:
+    {
+        "email":"examle@example.com",
+        "otp":"example_otp"
+    }
+
+    xatolar HttpException bilan qaytadi
+    kod togri bolsa user malumotlar va token qaytadi
+    response: {
+            "user": user, 
+            "access_token": token, 
+            "token_type": "bearer"
+        }
+
+
+127.0.0.1:8000/login ->
+/login
+email va parolni oladi togri bolsa access_token va uning type ni qaytardi
+
+127.0.0.1:8000/me ->
+/me
+user haqida barcha malumotni qaytaradi
+

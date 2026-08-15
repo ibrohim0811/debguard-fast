@@ -12,7 +12,7 @@ from fastapi.concurrency import run_in_threadpool
 
 
 from database import get_db
-from schemas.auth import RegisterSchema, LoginSchema, TokenSchema, UserOutSchema, RegisterOutSchema
+from schemas.auth import RegisterSchema, LoginSchema, TokenSchema, UserOutSchema, OtpVerifySchema
 from crud.user import get_user_by_email, create_user, get_user_by_phone_number
 from core.security import hash_password, verify_password, create_access_token
 from core.deps import get_current_user
@@ -95,20 +95,20 @@ async def register(data: RegisterSchema, db: Session = Depends(get_db)):
 
 
 @router.post("/confirm-registration")
-async def confirm_registration(email: str, otp: str, db: Session = Depends(get_db)):
+async def confirm_registration(data: OtpVerifySchema, db: Session = Depends(get_db)):
     
-    otp_code = await r.get(f"otp:{email}")
+    otp_code = await r.get(f"otp:{data.email}")
     
     if isinstance(otp_code, bytes):
         otp_code = otp_code.decode("utf-8")
 
-    if not otp_code or otp_code != str(otp):
+    if not otp_code or otp_code != str(data.otp):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, 
             detail="OTP kod noto'g'ri yoki muddati tugagan!"
         )
 
-    raw_user_data = await r.get(f"user:{email}")
+    raw_user_data = await r.get(f"user:{data.email}")
     if not raw_user_data:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, 
@@ -126,8 +126,8 @@ async def confirm_registration(email: str, otp: str, db: Session = Depends(get_d
             db=db,
         )
 
-        await r.delete(f"otp:{email}")
-        await r.delete(f"user:{email}")
+        await r.delete(f"otp:{data.email}")
+        await r.delete(f"user:{data.email}")
 
         token = create_access_token({"sub": str(user.id)})
 

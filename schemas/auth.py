@@ -40,3 +40,9 @@ class RegisterOutSchema(BaseModel):
     user: UserOutSchema
     access_token: str
     token_type: str = "bearer"
+
+
+
+class OtpVerifySchema(BaseModel):
+    email: str
+    otp: str
