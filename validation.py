@@ -104,3 +104,34 @@ def is_subdomain(text):
         return True
     else:
         return "Noto'g'ri format!"
+
+def validate_url(url: str) -> bool:
+    """
+    URL manzilini tekshiradi:
+    1. https:// bilan boshlanganmi?
+    2. Domen nomi va kengaytmasi (.uz, .com, ...) to'g'rimi?
+    """
+    
+    # 1. Manzil boshida https:// borligini tekshirish
+    if not url.startswith("https://"):
+        return {
+            "is_valid": False,
+            "reason": "URL 'https://' bilan boshlanishi shart!"
+        }
+    
+    # 2. URL'ni qismlarga ajratib olamiz
+    parsed_url = urlparse(url)
+    domain = parsed_url.netloc  # Masalan: "devguard.uz" yoki "example.com"
+    
+    # Domen mavjudligini tekshirish
+    if not domain:
+        return False
+    
+    # 3. Domen kengaytmasini (TLD) regex orqali tekshirish (.uz, .com, .net va h.k.)
+    # Ushbu regex kamida 2 ta harfli domen kengaytmasini talab qiladi
+    domain_pattern = r"^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+    
+    if not re.match(domain_pattern, domain):
+        return False
+        
+    return True

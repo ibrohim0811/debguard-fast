@@ -151,7 +151,7 @@ def login(data: LoginSchema, db: Session = Depends(get_db)):
     user = get_user_by_phone_number(data.phone_number, db)
 
     # user yo'q YOKI parol noto'g'ri — bir xil 401 (user enumeration'dan himoya)
-    if not user or not user.hashed_password or not verify_password(data.password, user.hashed_password):
+    if not user or not user.password or not verify_password(data.password, user.password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Telefon raqam yoki parol noto'g'ri",
