@@ -21,9 +21,9 @@ if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
 
 from models import TransactionHistory, Users, TransactionStatus  # Modellaringiz
-from states import PaymentState
-from button import sorov, back_web
-from database import get_db  # Yuqoridagi session helper
+from bot.states import PaymentState
+from bot.button import sorov, back_web
+from database import get_db_context  # Yuqoridagi session helper
 
 load_dotenv()
 
@@ -51,7 +51,7 @@ async def start(msg: types.Message, state: FSMContext, command: CommandObject):
 
     payment_id = args
 
-    async with get_db() as db:
+    async with get_db_context() as db:
         # SQLAlchemy selectinload: TransactionHistory bilan birga User'ni ham yuklab oladi (Django select_related kabi)
         stmt = (
             select(TransactionHistory)
@@ -139,7 +139,7 @@ async def get_cheque(msg: types.Message, state: FSMContext):
 async def yes_or_no(callback: types.CallbackQuery):
     action, payment_id = callback.data.split("_", 1)
 
-    async with get_db() as db:
+    async with get_db_context() as db:
         stmt = (
             select(TransactionHistory)
             .options(selectinload(TransactionHistory.user))
@@ -195,6 +195,8 @@ async def yes_or_no(callback: types.CallbackQuery):
                 parse_mode="HTML"
             )
 
+async def send_real_time_scan(chat_id, text, bot: Bot):
+    await bot.send_message(chat_id=chat_id, text=text)
 
 async def main():
     await dp.start_polling(bot)

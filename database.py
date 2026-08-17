@@ -1,6 +1,7 @@
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
 from sqlalchemy.orm import DeclarativeBase
 from contextlib import asynccontextmanager
+from typing import AsyncGenerator
 
 # 1. URL'ga +asyncpg qo'shing
 DATABASE_URL = "postgresql+asyncpg://postgres:password@127.0.0.1:5432/devguard"
@@ -19,7 +20,18 @@ class Base(DeclarativeBase):
     pass
 
 # 4. Asinxron get_db generatori
-@asynccontextmanager
-async def get_db():
+async def get_db() -> AsyncGenerator[AsyncSession, None]:
     async with AsyncSessionLocal() as session:
-        yield session
+        try:
+            yield session
+        finally:
+            await session.close()
+
+
+@asynccontextmanager
+async def get_db_context() -> AsyncGenerator[AsyncSession, None]:
+    async with AsyncSessionLocal() as session:
+        try:
+            yield session
+        finally:
+            await session.close()

@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from routers.auth import router as auth
 from routers.webapp import router as webapp
 from routers.payment import router as payment
+from routers.scan import router as scan
 
 app = FastAPI()
 
@@ -19,6 +20,7 @@ app.add_middleware(
 app.include_router(auth)
 app.include_router(webapp)
 app.include_router(payment)
+app.include_router(scan)
 
 
 @app.get("/devguard")
