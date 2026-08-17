@@ -1,31 +1,25 @@
-import os
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, DeclarativeBase
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
+from sqlalchemy.orm import DeclarativeBase
+from contextlib import asynccontextmanager
 
-from dotenv import load_dotenv
+# 1. URL'ga +asyncpg qo'shing
+DATABASE_URL = "postgresql+asyncpg://postgres:password@127.0.0.1:5432/devguard"
 
-load_dotenv()
+# 2. create_async_engine ishlatishingiz shart
+engine = create_async_engine(DATABASE_URL, echo=True)
 
-
-# SQLite ulanish URL-manzili (DATABASE_URL env orqali qayta yozish mumkin)
-DATABASE_URL = os.getenv("DATABASE_URL")
-
-# SQLite uchun bir nechta thread ishlashi uchun check_same_thread=False kerak
-connect_args = {"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}
-
-engine = create_engine(
-    DATABASE_URL,
-    connect_args=connect_args,
+# 3. AsyncSessionLocal tayyorlash
+AsyncSessionLocal = async_sessionmaker(
+    bind=engine,
+    class_=AsyncSession,
+    expire_on_commit=False
 )
-
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 class Base(DeclarativeBase):
     pass
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+# 4. Asinxron get_db generatori
+@asynccontextmanager
+async def get_db():
+    async with AsyncSessionLocal() as session:
+        yield session

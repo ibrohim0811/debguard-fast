@@ -44,14 +44,14 @@ def render_email_template(full_name: str, otp_code: str) -> str:
 @router.post("/register")
 async def register(data: RegisterSchema, db: Session = Depends(get_db)):
 
-    if get_user_by_phone_number(data.phone_number, db):
+    if await get_user_by_phone_number(data.phone_number, db):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Bu telefon raqam allaqachon ro'yxatdan o'tgan"
         )
     
     # 1. Email band emasligini tekshirish
-    if get_user_by_email(data.email, db):
+    if await get_user_by_email(data.email, db):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Email allaqachon ro'yxatdan o'tgan",
@@ -118,7 +118,7 @@ async def confirm_registration(data: OtpVerifySchema, db: Session = Depends(get_
     try:
         user_data = json.loads(raw_user_data)
 
-        user = create_user(
+        user = await create_user(
             full_name=user_data["full_name"],
             email=user_data["email"],
             phone_number=user_data["phone_number"],
@@ -147,8 +147,8 @@ async def confirm_registration(data: OtpVerifySchema, db: Session = Depends(get_
 
 
 @router.post("/login", response_model=TokenSchema)
-def login(data: LoginSchema, db: Session = Depends(get_db)):
-    user = get_user_by_phone_number(data.phone_number, db)
+async def login(data: LoginSchema, db: Session = Depends(get_db)):
+    user = await get_user_by_phone_number(data.phone_number, db)
 
     # user yo'q YOKI parol noto'g'ri — bir xil 401 (user enumeration'dan himoya)
     if not user or not user.password or not verify_password(data.password, user.password):
