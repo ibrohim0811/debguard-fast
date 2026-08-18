@@ -11,7 +11,17 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],          # ishlab chiqishda hammasi ochiq; prod'da domenlarni yozing
+    allow_origins=[
+        "https://devguard.uz",
+        "https://www.devguard.uz",
+        "https://api.devguard.uz",
+        "http://devguard.uz",
+        "http://www.devguard.uz",
+        "http://api.devguard.uz",
+        # Local testlar uchun (agarda kerak bo'lsa):
+        "http://localhost:3000",
+        "http://localhost:5173",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
