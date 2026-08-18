@@ -25,6 +25,8 @@ services:
     depends_on:
       - redis
     restart: always
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   worker:
     build: .
