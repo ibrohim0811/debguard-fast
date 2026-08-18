@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 # 1. URL'ga +asyncpg qo'shing
-DATABASE_URL = os.getenv("DATABASE_URL")
+DATABASE_URL = "postgresql+asyncpg://postgres:ibrohim0811@postgres:5432/devguard"
 
 # 2. create_async_engine ishlatishingiz shart
 engine = create_async_engine(DATABASE_URL, echo=True)
