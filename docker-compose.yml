@@ -1,6 +1,23 @@
-version: '3.8'
-
 services:
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: devguard_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ibrohim0811
+      POSTGRES_DB: devguard
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d devguard"]
+      interval: 3s
+      timeout: 3s
+      retries: 5
+
   redis:
     image: redis:7-alpine
     container_name: devguard_redis
@@ -12,7 +29,6 @@ services:
     build: .
     container_name: devguard_web
     working_dir: /app
-    # Alembic-ga -c orqali fayl yo'lini anq ko'rsatamiz:
     command: sh -c "alembic -c /app/alembic.ini upgrade head && uvicorn main:app --host 0.0.0.0 --port 8000"
     volumes:
       - .:/app
@@ -22,11 +38,14 @@ services:
       - REDIS_URL=redis://redis:6379/0
     env_file:
       - .env
-    depends_on:
-      - redis
-    restart: always
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    restart: always
 
   worker:
     build: .
@@ -40,7 +59,10 @@ services:
     env_file:
       - .env
     depends_on:
-      - redis
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
     restart: always
 
   bot:
@@ -53,8 +75,12 @@ services:
     env_file:
       - .env
     depends_on:
-      - web
-      - redis
+      postgres:
+        condition: service_healthy
+      web:
+        condition: service_started
+      redis:
+        condition: service_started
     restart: always
 
   nginx:
@@ -69,3 +95,6 @@ services:
     depends_on:
       - web
     restart: always
+
+volumes:
+  postgres_data:
