@@ -1,10 +1,13 @@
+import os
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
 from sqlalchemy.orm import DeclarativeBase
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
+from dotenv import load_dotenv
 
+load_dotenv()
 # 1. URL'ga +asyncpg qo'shing
-DATABASE_URL = "postgresql+asyncpg://postgres:password@127.0.0.1:5432/devguard"
+DATABASE_URL = os.getenv("DATABASE_URL")
 
 # 2. create_async_engine ishlatishingiz shart
 engine = create_async_engine(DATABASE_URL, echo=True)
