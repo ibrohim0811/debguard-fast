@@ -18,6 +18,7 @@ RUN git clone --depth=1 https://github.com/sullo/nikto.git /opt/nikto \
 
 # 3. Nuclei binarini yuklab olish va o'rnatish
 RUN NUCLEI_VERSION=$(curl -s https://api.github.com/repos/projectdiscovery/nuclei/releases/latest | grep '"tag_name":' | sed -E 's/.*"v([^"]+)".*/\1/') \
+ && [ -z "$NUCLEI_VERSION" ] && NUCLEI_VERSION="3.3.0" || true \
  && curl -sL "https://github.com/projectdiscovery/nuclei/releases/download/v${NUCLEI_VERSION}/nuclei_${NUCLEI_VERSION}_linux_amd64.zip" -o /tmp/nuclei.zip \
  && unzip /tmp/nuclei.zip -d /usr/local/bin nuclei \
  && chmod +x /usr/local/bin/nuclei \

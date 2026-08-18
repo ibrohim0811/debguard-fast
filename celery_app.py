@@ -20,6 +20,6 @@ celery_app.conf.update(
     result_serializer="json",
     timezone="UTC",
     enable_utc=True,
-    # Og'ir vazifalar uchun worker qayta yuklanishini boshqarish
+    worker_concurrency=2,
     worker_max_tasks_per_child=50
 )

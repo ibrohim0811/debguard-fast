@@ -1,0 +1,37 @@
+name: Deploy Devguard to VPS
+
+on:
+  push:
+    branches:
+      - main  # yoki master (qaysi tarmoq ishlatilayotgan bo'lsa)
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            # Agarda serverda papka bo'lmasa yaratamiz
+            mkdir -p ~/devguard
+            cd ~/devguard
+
+            # Agarda git repozitoriya tushirilmagan bo'lsa clone qilamiz, aks holda pull qilamiz
+            if [ ! -d ".git" ]; then
+              git clone https://github.com/${{ github.repository }}.git .
+            else
+              git pull origin main
+            fi
+
+            # Docker konteynerlarni build qilib qayta ishga tushiramiz
+            docker compose down
+            docker compose build
+            docker compose up -d
