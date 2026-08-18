@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   redis:
     image: redis:7-alpine
@@ -9,7 +11,9 @@ services:
   web:
     build: .
     container_name: devguard_web
-    command: sh -c "alembic upgrade head && uvicorn main:app --host 0.0.0.0 --port 8000"
+    working_dir: /app
+    # Alembic-ga -c orqali fayl yo'lini anq ko'rsatamiz:
+    command: sh -c "alembic -c /app/alembic.ini upgrade head && uvicorn main:app --host 0.0.0.0 --port 8000"
     volumes:
       - .:/app
     ports:
@@ -25,6 +29,7 @@ services:
   worker:
     build: .
     container_name: devguard_worker
+    working_dir: /app
     command: celery -A utils.celery_app worker --loglevel=info --concurrency=2
     volumes:
       - .:/app
@@ -39,6 +44,7 @@ services:
   bot:
     build: .
     container_name: devguard_bot
+    working_dir: /app
     command: python bot/main.py
     volumes:
       - .:/app
@@ -50,14 +56,14 @@ services:
     restart: always
 
   nginx:
-      image: nginx:alpine
-      container_name: devguard_nginx
-      ports:
-        - "80:80"
-      volumes:
-        - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro,z
-        - ./staticfiles:/app/staticfiles:ro   # Static fayllar uchun (ixtiyoriy)
-        - ./media:/app/media:ro               # Media fayllar uchun (ixtiyoriy)
-      depends_on:
-        - web
-      restart: always
+    image: nginx:alpine
+    container_name: devguard_nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro,z
+      - ./staticfiles:/app/staticfiles:ro
+      - ./media:/app/media:ro
+    depends_on:
+      - web
+    restart: always

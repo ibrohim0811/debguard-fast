@@ -24,6 +24,7 @@ RUN NUCLEI_VERSION=$(curl -s https://api.github.com/repos/projectdiscovery/nucle
  && chmod +x /usr/local/bin/nuclei \
  && rm /tmp/nuclei.zip
 
+# Ishchi katalog
 WORKDIR /app
 
 # 4. Python kutubxonalarini o'rnatish
@@ -31,10 +32,10 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip \
  && pip install --no-cache-dir -r requirements.txt
 
-# 5. Loyiha kodini va skriptlarni ko'chirish
-COPY . .
+# 5. Loyiha kodini ko'chirish (alembic.ini ham birga o'tadi)
+COPY . /app/
 
-# 6. Skriptlarga bajarish (execute) huquqini berish
+# 6. Skriptlarga ejecutar huquqini berish
 RUN chmod +x /app/routers/*.sh 2>/dev/null || true
 
 EXPOSE 8000
