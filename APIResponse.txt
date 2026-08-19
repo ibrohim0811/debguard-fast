@@ -39,3 +39,6 @@ email va parolni oladi togri bolsa access_token va uning type ni qaytardi
 /me
 user haqida barcha malumotni qaytaradi
 
+
+
+19.08.2026 backend ready
