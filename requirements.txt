@@ -12,3 +12,9 @@ resend
 python-jose[cryptography]
 passlib[bcrypt]
 jwt
+jinja2
+aiogram
+beautifulsoup4
+httpx
+requests
+sqlalchemy
