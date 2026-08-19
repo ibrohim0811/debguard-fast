@@ -21,18 +21,18 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
           script: |
-            # Agarda serverda papka bo'lmasa yaratamiz
-            mkdir -p ~/devguard
-            cd ~/devguard
-
-            # Agarda git repozitoriya tushirilmagan bo'lsa clone qilamiz, aks holda pull qilamiz
-            if [ ! -d ".git" ]; then
-              git clone https://github.com/${{ github.repository }}.git .
+            # Agarda .git bo'lmasa, papkani tozalab noldan clone qilamiz
+            if [ ! -d "$HOME/devguard/.git" ]; then
+              rm -rf ~/devguard
+              git clone https://github.com/${{ github.repository }}.git ~/devguard
+              cd ~/devguard
             else
-              git pull origin main
+              cd ~/devguard
+              git fetch origin main
+              git reset --hard origin/main
             fi
 
             # Docker konteynerlarni build qilib qayta ishga tushiramiz
-            docker compose down
+            docker compose down || true
             docker compose build
             docker compose up -d
