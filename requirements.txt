@@ -11,3 +11,4 @@ email-validator
 resend
 python-jose[cryptography]
 passlib[bcrypt]
+jwt
