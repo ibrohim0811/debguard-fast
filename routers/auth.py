@@ -14,14 +14,14 @@ from fastapi.concurrency import run_in_threadpool
 from database import get_db
 from schemas.auth import RegisterSchema, LoginSchema, TokenSchema, UserOutSchema, OtpVerifySchema
 from crud.user import get_user_by_email, create_user, get_user_by_phone_number
-from core.security import hash_password, verify_password, create_access_token
+from core.security import hash_password, verify_password, create_access_token, create_refresh_token, decode_refresh_token
 from core.deps import get_current_user
 from models import Users
 
 router = APIRouter(tags=["auth"])
 
 logger = logging.getLogger(__name__)
-r = redis.from_url("redis://localhost:6379", decode_responses=True)
+r = redis.from_url("redis://redis:6379/0", decode_responses=True)
 templates = Jinja2Templates(directory="templates")
 
 
@@ -130,10 +130,13 @@ async def confirm_registration(data: OtpVerifySchema, db: Session = Depends(get_
         await r.delete(f"user:{data.email}")
 
         token = create_access_token({"sub": str(user.id)})
-
+        refresh_token = create_refresh_token({
+            "sub": str(user.id)
+        })
         return {
             "user": user, 
             "access_token": token, 
+            "refresh_token":refresh_token,
             "token_type": "bearer"
         }
 
@@ -158,7 +161,10 @@ async def login(data: LoginSchema, db: Session = Depends(get_db)):
         )
 
     token = create_access_token({"sub": str(user.id)})
-    return {"access_token": token, "token_type": "bearer"}
+    refresh_token = create_refresh_token({
+    "sub": str(user.id) 
+    })
+    return {"access_token": token, "refresh_token":refresh_token, "token_type": "bearer"}
 
 
 @router.get("/me", response_model=UserOutSchema)
@@ -168,3 +174,21 @@ def me(current_user: Users = Depends(get_current_user)):
 
 
 
+@router.post("/refresh")
+async def refresh(refresh_token: str):
+    user_id = decode_refresh_token(refresh_token)
+
+    if user_id is None:
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid or expired refresh token"
+        )
+
+    new_access_token = create_access_token({
+        "sub": str(user_id)
+    })
+
+    return {
+        "access_token": new_access_token,
+        "token_type": "bearer"
+    }
